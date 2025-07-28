@@ -1,0 +1,72 @@
+.dashboard-container {
+	padding: 20px;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.loading-spinner {
+	margin: 40px auto;
+}
+
+.user-info-container {
+	margin-top: 20px;
+}
+
+.user-welcome {
+	margin-bottom: 30px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #eee;
+}
+
+.user-welcome h2 {
+	margin-bottom: 5px;
+	color: #3f51b5;
+}
+
+.user-email {
+	color: #666;
+	font-style: italic;
+}
+
+.info-section {
+	background-color: #f8f9fa;
+	border-radius: 4px;
+	padding: 15px;
+	margin-bottom: 20px;
+}
+
+.info-section h3 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	color: #333;
+	font-weight: 500;
+}
+
+.info-row {
+	display: flex;
+	margin-bottom: 10px;
+}
+
+.info-label {
+	font-weight: 500;
+	width: 100px;
+	color: #555;
+}
+
+.info-value {
+	flex: 1;
+}
+
+.dashboard-message {
+	margin-top: 20px;
+	padding: 15px;
+	background-color: #e8f5e9;
+	border-radius: 4px;
+	color: #2e7d32;
+}
+
+mat-card-actions {
+	display: flex;
+	justify-content: flex-end;
+	padding: 16px;
+}

@@ -1,0 +1,48 @@
+<div class="confirm-container">
+	<mat-card class="confirm-card">
+		<mat-card-header>
+			<mat-card-title>Confirmar cuenta</mat-card-title>
+			<mat-card-subtitle>
+				Ingresa el código de verificación enviado a tu correo electrónico
+			</mat-card-subtitle>
+		</mat-card-header>
+
+		<form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
+			<mat-card-content>
+				<div class="user-info">
+					<mat-icon>account_circle</mat-icon>
+					<span class="username">{{ username }}</span>
+				</div>
+
+				<mat-form-field appearance="outline" class="full-width">
+					<mat-label>Código de verificación</mat-label>
+					<input matInput formControlName="code" placeholder="Código de 6 dígitos"
+						required>
+					<mat-icon matSuffix>vpn_key</mat-icon>
+					<mat-error *ngIf="f['code'].errors?.['required']">El código es
+						obligatorio</mat-error>
+					<mat-error
+						*ngIf="f['code'].errors?.['minlength'] || f['code'].errors?.['maxlength']">El
+						código debe tener 6 dígitos</mat-error>
+				</mat-form-field>
+
+				<p class="resend-info">
+					¿No recibiste el código?
+					<button type="button" mat-button color="primary" (click)="resendCode()">
+						Enviar de nuevo
+					</button>
+				</p>
+			</mat-card-content>
+
+			<mat-card-actions align="end">
+				<button mat-button type="button" routerLink="/login">Volver a inicio de
+					sesión</button>
+				<button mat-raised-button color="primary" type="submit"
+					[disabled]="confirmForm.invalid || loading">
+					<mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+					<span *ngIf="!loading">Confirmar cuenta</span>
+				</button>
+			</mat-card-actions>
+		</form>
+	</mat-card>
+</div>

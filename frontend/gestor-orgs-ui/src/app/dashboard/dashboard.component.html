@@ -1,0 +1,53 @@
+<div class="dashboard-container">
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Dashboard</mat-card-title>
+			<mat-card-subtitle>Bienvenido a tu panel de control</mat-card-subtitle>
+		</mat-card-header>
+
+		<mat-card-content>
+			<mat-spinner *ngIf="loading" diameter="40"
+				class="loading-spinner"></mat-spinner>
+
+			<div *ngIf="!loading" class="user-info-container">
+				<div class="user-welcome">
+					<h2>Bienvenido, {{ userAttributes.given_name || username }}</h2>
+					<p class="user-email">{{ userAttributes.email }}</p>
+				</div>
+
+				<div class="info-section">
+					<h3>Información de usuario</h3>
+					<div class="info-row">
+						<span class="info-label">Nombre:</span>
+						<span class="info-value">{{ userAttributes.given_name || 'No disponible'
+							}}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Apellido:</span>
+						<span class="info-value">{{ userAttributes.family_name || 'No disponible'
+							}}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Email:</span>
+						<span class="info-value">{{ userAttributes.email || 'No disponible'
+							}}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">Usuario:</span>
+						<span class="info-value">{{ username || 'No disponible' }}</span>
+					</div>
+				</div>
+
+				<p class="dashboard-message">
+					Este es un componente de Dashboard básico. Aquí se implementarán
+					funcionalidades para gestionar organizaciones y miembros.
+				</p>
+			</div>
+		</mat-card-content>
+
+		<mat-card-actions>
+			<button mat-raised-button color="warn" (click)="onLogout()">Cerrar
+				sesión</button>
+		</mat-card-actions>
+	</mat-card>
+</div>
