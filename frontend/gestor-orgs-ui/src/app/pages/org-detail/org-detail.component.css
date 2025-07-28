@@ -1,0 +1,8 @@
+mat-card {
+	margin: 24px auto;
+	max-width: 600px;
+}
+
+mat-card-content p {
+	margin-bottom: 8px;
+}

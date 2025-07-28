@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Cambiar rol de miembro</h2>
+<mat-dialog-content>
+	<mat-form-field appearance="outline" class="full-width">
+		<mat-label>Rol</mat-label>
+		<mat-select [(ngModel)]="selectedRole">
+			<mat-option *ngFor="let role of roles" [value]="role">{{role}}</mat-option>
+		</mat-select>
+	</mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<button mat-button (click)="cancel()">Cancelar</button>
+	<button mat-raised-button color="primary" (click)="changeRole()"
+		[disabled]="loading">Actualizar</button>
+</mat-dialog-actions>

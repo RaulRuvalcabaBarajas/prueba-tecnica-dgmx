@@ -1,0 +1,14 @@
+.table-container {
+	overflow-x: auto;
+	margin-top: 16px;
+}
+
+mat-card {
+	margin: 24px auto;
+	max-width: 1000px;
+}
+
+mat-form-field {
+	width: 300px;
+	margin-bottom: 16px;
+}

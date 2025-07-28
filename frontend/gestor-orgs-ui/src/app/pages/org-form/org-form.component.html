@@ -1,0 +1,23 @@
+<mat-card>
+	<mat-card-title>{{ isEdit ? 'Editar organización' : 'Crear organización'
+		}}</mat-card-title>
+	<form [formGroup]="orgForm" (ngSubmit)="onSubmit()">
+		<mat-form-field appearance="outline" class="full-width">
+			<mat-label>Nombre</mat-label>
+			<input matInput formControlName="name" required>
+			<mat-error *ngIf="orgForm.get('name')?.hasError('required')">El nombre es
+				obligatorio</mat-error>
+		</mat-form-field>
+		<mat-form-field appearance="outline" class="full-width">
+			<mat-label>Descripción</mat-label>
+			<textarea matInput formControlName="description"></textarea>
+		</mat-form-field>
+		<div class="actions">
+			<button mat-raised-button color="primary" type="submit"
+				[disabled]="orgForm.invalid || loading">
+				{{ isEdit ? 'Actualizar' : 'Crear' }}
+			</button>
+			<button mat-button type="button" routerLink="/orgs">Cancelar</button>
+		</div>
+	</form>
+</mat-card>
