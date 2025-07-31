@@ -184,7 +184,7 @@ La API expone los siguientes endpoints:
 
 ## Autor
 
-[Tu nombre]
+Victor Raul Rucalcaba Barajas
 
 ## Licencia
 
