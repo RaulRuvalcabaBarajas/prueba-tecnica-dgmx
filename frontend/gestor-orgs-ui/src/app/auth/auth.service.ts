@@ -1,5 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Auth } from 'aws-amplify';
+import { 
+  signUp, 
+  confirmSignUp, 
+  signIn, 
+  signOut, 
+  getCurrentUser, 
+  fetchUserAttributes,
+  resetPassword,
+  confirmResetPassword
+} from 'aws-amplify/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -38,14 +47,16 @@ export class AuthService {
     familyName: string
   ): Promise<any> {
     try {
-      const result = await Auth.signUp({
+      const result = await signUp({
         username,
         password,
-        attributes: {
-          email,
-          given_name: givenName,
-          family_name: familyName,
-        },
+        options: {
+          userAttributes: {
+            email,
+            given_name: givenName,
+            family_name: familyName,
+          }
+        }
       });
       return result;
     } catch (error) {
@@ -59,7 +70,7 @@ export class AuthService {
    */
   async confirmSignUp(username: string, code: string): Promise<any> {
     try {
-      return await Auth.confirmSignUp(username, code);
+      return await confirmSignUp({ username, confirmationCode: code });
     } catch (error) {
       console.error('Error al confirmar registro:', error);
       throw error;
@@ -71,11 +82,14 @@ export class AuthService {
    */
   async signIn(username: string, password: string): Promise<any> {
     try {
-      const user = await Auth.signIn(username, password);
+      console.log('Intentando iniciar sesión para usuario:', username);
+      const user = await signIn({ username, password });
+      console.log('Inicio de sesión exitoso:', user);
       this.isAuthenticatedSubject.next(true);
       return user;
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
+      console.error('Detalles del error:', JSON.stringify(error, null, 2));
       throw error;
     }
   }
@@ -85,7 +99,7 @@ export class AuthService {
    */
   async signOut(): Promise<void> {
     try {
-      await Auth.signOut();
+      await signOut();
       this.isAuthenticatedSubject.next(false);
       this.router.navigate(['/login']);
     } catch (error) {
@@ -99,7 +113,7 @@ export class AuthService {
    */
   async currentUser(): Promise<any> {
     try {
-      const user = await Auth.currentAuthenticatedUser();
+      const user = await getCurrentUser();
       return user;
     } catch (error) {
       console.error('Error al obtener usuario actual:', error);
@@ -112,8 +126,9 @@ export class AuthService {
    */
   async getUserAttributes(): Promise<any> {
     try {
-      const user = await Auth.currentAuthenticatedUser();
-      return user.attributes;
+      const attributes = await fetchUserAttributes();
+      console.log('Atributos obtenidos:', attributes);
+      return attributes;
     } catch (error) {
       console.error('Error al obtener atributos del usuario:', error);
       throw error;
@@ -125,7 +140,7 @@ export class AuthService {
    */
   async forgotPassword(username: string): Promise<any> {
     try {
-      return await Auth.forgotPassword(username);
+      return await resetPassword({ username });
     } catch (error) {
       console.error(
         'Error al solicitar restablecimiento de contraseña:',
@@ -144,7 +159,11 @@ export class AuthService {
     newPassword: string
   ): Promise<any> {
     try {
-      return await Auth.forgotPasswordSubmit(username, code, newPassword);
+      return await confirmResetPassword({ 
+        username, 
+        confirmationCode: code, 
+        newPassword 
+      });
     } catch (error) {
       console.error('Error al restablecer contraseña:', error);
       throw error;

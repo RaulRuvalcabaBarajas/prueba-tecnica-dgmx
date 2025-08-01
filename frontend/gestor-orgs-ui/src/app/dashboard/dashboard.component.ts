@@ -21,8 +21,10 @@ export class DashboardComponent implements OnInit {
     try {
       this.loading = true;
       const user = await this.authService.currentUser();
+      console.log('Usuario obtenido:', user);
       this.username = user.username;
       this.userAttributes = await this.authService.getUserAttributes();
+      console.log('Atributos en componente:', this.userAttributes);
     } catch (error) {
       console.error('Error al obtener información del usuario:', error);
     } finally {

@@ -39,9 +39,19 @@
 				</div>
 
 				<p class="dashboard-message">
-					Este es un componente de Dashboard básico. Aquí se implementarán
-					funcionalidades para gestionar organizaciones y miembros.
+					Gestiona tus organizaciones y miembros desde aquí.
 				</p>
+				
+				<div class="action-buttons">
+					<button mat-raised-button color="primary" routerLink="/orgs">
+						<mat-icon>business</mat-icon>
+						Ver Organizaciones
+					</button>
+					<button mat-button routerLink="/orgs/new">
+						<mat-icon>add</mat-icon>
+						Nueva Organización
+					</button>
+				</div>
 			</div>
 		</mat-card-content>
 

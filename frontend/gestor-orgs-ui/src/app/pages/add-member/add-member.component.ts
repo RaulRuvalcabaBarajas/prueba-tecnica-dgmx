@@ -1,46 +1,61 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// Aquí deberías importar el servicio de miembros
+import { MemberService } from '../../services/member.service';
 
 @Component({
   selector: 'app-add-member',
   templateUrl: './add-member.component.html',
   styleUrls: ['./add-member.component.css'],
 })
-export class AddMemberComponent {
-  @Input() organizationId!: string;
-  addMemberForm: FormGroup;
+export class AddMemberComponent implements OnInit {
+  organizationId!: string;
+  memberForm: FormGroup;
   loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<AddMemberComponent>,
-    private snackBar: MatSnackBar
-  ) // private memberService: MemberService
-  {
-    this.addMemberForm = this.fb.group({
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    private memberService: MemberService
+  ) {
+    this.memberForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
+      role: ['member', [Validators.required]]
     });
   }
 
-  onSubmit(): void {
-    if (this.addMemberForm.invalid) return;
-    this.loading = true;
-    // Lógica para invitar miembro (llamar a memberService.addMember)
-    // Ejemplo:
-    // this.memberService.addMember({ organizationId: this.organizationId, email: this.addMemberForm.value.email })
-    //   .subscribe(() => {
-    //     this.snackBar.open('Invitación enviada', 'Cerrar', { duration: 3000 });
-    //     this.dialogRef.close('added');
-    //   }, err => {
-    //     this.snackBar.open('Error al invitar', 'Cerrar', { duration: 3000 });
-    //     this.loading = false;
-    //   });
+  ngOnInit(): void {
+    this.organizationId = this.route.snapshot.paramMap.get('id') || '';
   }
 
-  cancel(): void {
-    this.dialogRef.close();
+  onSubmit(): void {
+    if (this.memberForm.invalid) return;
+    
+    this.loading = true;
+    const email = this.memberForm.value.email;
+
+    this.memberService.add(this.organizationId, email).subscribe({
+      next: () => {
+        this.snackBar.open('Invitación enviada exitosamente', 'Cerrar', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
+        this.router.navigate(['/org-detail', this.organizationId]);
+      },
+      error: (err: any) => {
+        this.snackBar.open('Error al enviar invitación', 'Cerrar', { 
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/org-detail', this.organizationId]);
   }
 }

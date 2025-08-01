@@ -4,6 +4,7 @@ from aws_cdk import (
     RemovalPolicy
 )
 from aws_cdk import aws_cognito as cognito
+from aws_cdk import aws_iam as iam
 from constructs import Construct
 
 class InfraStack(Stack):
@@ -19,7 +20,7 @@ class InfraStack(Stack):
                 email=True, 
                 username=True
             ),
-            auto_verify=cognito.AutoVerify(
+            auto_verify=cognito.AutoVerifiedAttrs(
                 email=True
             ),
             password_policy=cognito.PasswordPolicy(
@@ -42,14 +43,8 @@ class InfraStack(Stack):
             user_pool_client_name="gestor-orgs-client",
             auth_flows=cognito.AuthFlow(
                 user_password=True,
+                user_srp=True,
                 admin_user_password=True
-            ),
-            o_auth=cognito.OAuthSettings(
-                flows=cognito.OAuthFlows(
-                    implicit_code_grant=True
-                ),
-                callback_urls=["http://localhost:4200/callback", "http://localhost:4200/"],
-                logout_urls=["http://localhost:4200/"]
             ),
             generate_secret=False  # No generar secreto para clientes web
         )
@@ -62,6 +57,44 @@ class InfraStack(Stack):
                 "clientId": app_client.user_pool_client_id,
                 "providerName": user_pool.user_pool_provider_name
             }]
+        )
+
+        # Crear roles IAM para el Identity Pool
+        
+        # Rol para usuarios autenticados
+        authenticated_role = iam.Role(self, "AuthenticatedRole",
+            assumed_by=iam.FederatedPrincipal("cognito-identity.amazonaws.com", {
+                "StringEquals": {
+                    "cognito-identity.amazonaws.com:aud": identity_pool.ref
+                },
+                "ForAnyValue:StringLike": {
+                    "cognito-identity.amazonaws.com:amr": "authenticated"
+                }
+            }, "sts:AssumeRoleWithWebIdentity"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name("AmazonCognitoPowerUser")
+            ]
+        )
+
+        # Rol para usuarios no autenticados (opcional, ya que allow_unauthenticated_identities=False)
+        unauthenticated_role = iam.Role(self, "UnauthenticatedRole",
+            assumed_by=iam.FederatedPrincipal("cognito-identity.amazonaws.com", {
+                "StringEquals": {
+                    "cognito-identity.amazonaws.com:aud": identity_pool.ref
+                },
+                "ForAnyValue:StringLike": {
+                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                }
+            }, "sts:AssumeRoleWithWebIdentity")
+        )
+
+        # Asignar roles al Identity Pool
+        cognito.CfnIdentityPoolRoleAttachment(self, "IdentityPoolRoleAttachment",
+            identity_pool_id=identity_pool.ref,
+            roles={
+                "authenticated": authenticated_role.role_arn,
+                "unauthenticated": unauthenticated_role.role_arn
+            }
         )
 
         # Guardar referencia a los recursos para output
@@ -78,7 +111,6 @@ class InfraStack(Stack):
         # --- FASE 2: Tablas DynamoDB ---
         from aws_cdk import (
             aws_dynamodb as ddb,
-            aws_iam as iam,
             aws_lambda as _lambda,
             aws_apigateway as apigw,
             Duration
@@ -109,9 +141,14 @@ class InfraStack(Stack):
 
         # --- Lambdas y permisos ---
         lambda_props = dict(
-            runtime=_lambda.Runtime.PYTHON_3_9,
+            runtime=_lambda.Runtime.PYTHON_3_11,
             code=_lambda.Code.from_asset("../backend"),
-            timeout=Duration.seconds(10)
+            timeout=Duration.seconds(30),
+            environment={
+                'ORGS_TABLE': orgs_table.table_name,
+                'MEMBERS_TABLE': members_table.table_name,
+                'INVITATIONS_TABLE': invitations_table.table_name
+            }
         )
 
         # Organización
@@ -198,3 +235,6 @@ class InfraStack(Stack):
         invitations = api.root.add_resource("invitations")
         invitations.add_method("GET", apigw.LambdaIntegration(get_invitation_fn))
         invitations.add_method("POST", apigw.LambdaIntegration(accept_invitation_fn))
+
+        # Output de la URL de la API
+        CfnOutput(self, "ApiUrl", value=api.url)

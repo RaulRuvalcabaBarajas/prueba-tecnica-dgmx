@@ -65,6 +65,21 @@
 	color: #2e7d32;
 }
 
+.action-buttons {
+	display: flex;
+	gap: 1rem;
+	margin: 20px 0;
+	flex-wrap: wrap;
+}
+
+.action-buttons button {
+	min-width: 180px;
+}
+
+.action-buttons mat-icon {
+	margin-right: 8px;
+}
+
 mat-card-actions {
 	display: flex;
 	justify-content: flex-end;

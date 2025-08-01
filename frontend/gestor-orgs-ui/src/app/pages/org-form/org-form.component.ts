@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OrgService, Organization } from '../../services/org.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-org-form',
@@ -20,7 +21,8 @@ export class OrgFormComponent implements OnInit {
     private orgService: OrgService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -54,7 +56,7 @@ export class OrgFormComponent implements OnInit {
     );
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.orgForm.invalid) return;
     this.loading = true;
     const data = this.orgForm.value;
@@ -74,18 +76,31 @@ export class OrgFormComponent implements OnInit {
         }
       );
     } else {
-      this.orgService.create(data).subscribe(
-        (res) => {
-          this.snackBar.open('Organización creada', 'Cerrar', {
-            duration: 3000,
-          });
-          this.router.navigate(['/orgs']);
-        },
-        (err) => {
-          this.snackBar.open('Error al crear', 'Cerrar', { duration: 3000 });
-          this.loading = false;
-        }
-      );
+      try {
+        // Obtener el usuario actual para usar su ID como ownerId
+        const currentUser = await this.authService.currentUser();
+        const dataWithOwner = {
+          ...data,
+          ownerId: currentUser.userId || currentUser.username
+        };
+
+        this.orgService.create(dataWithOwner).subscribe(
+          (res) => {
+            this.snackBar.open('Organización creada', 'Cerrar', {
+              duration: 3000,
+            });
+            this.router.navigate(['/orgs']);
+          },
+          (err) => {
+            this.snackBar.open('Error al crear', 'Cerrar', { duration: 3000 });
+            this.loading = false;
+          }
+        );
+      } catch (error) {
+        console.error('Error al obtener usuario actual:', error);
+        this.snackBar.open('Error al obtener información del usuario', 'Cerrar', { duration: 3000 });
+        this.loading = false;
+      }
     }
   }
 }

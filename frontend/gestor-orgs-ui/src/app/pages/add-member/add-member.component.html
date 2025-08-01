@@ -1,0 +1,38 @@
+<div class="add-member-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Agregar Miembro</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="memberForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email del miembro</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com">
+          <mat-error *ngIf="memberForm.get('email')?.hasError('required')">
+            El email es requerido
+          </mat-error>
+          <mat-error *ngIf="memberForm.get('email')?.hasError('email')">
+            Ingrese un email válido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rol</mat-label>
+          <select matNativeControl formControlName="role">
+            <option value="admin">Administrador</option>
+            <option value="member">Miembro</option>
+          </select>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="memberForm.invalid || loading">
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+            {{ loading ? 'Agregando...' : 'Agregar Miembro' }}
+          </button>
+          <button mat-button type="button" (click)="goBack()">Cancelar</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

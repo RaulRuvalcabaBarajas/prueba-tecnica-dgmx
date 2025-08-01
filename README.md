@@ -100,21 +100,77 @@ ng serve
 # La aplicación estará disponible en http://localhost:4200
 ```
 
-### Backend e Infraestructura (AWS CDK)
+## Despliegue de Infraestructura
+
+### 1. Preparación del Entorno
 
 ```bash
-# Crear y activar entorno virtual
-cd infra
+# Crear y activar un entorno virtual de Python
 python -m venv .venv
-source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+source .venv/bin/activate  # En Windows usar: .venv\Scripts\activate
 
-# Instalar dependencias
+# Instalar dependencias del backend
+cd backend
 pip install -r requirements.txt
-pip install -r requirements-dev.txt
+
+# Instalar dependencias de infraestructura
+cd ../infra
+pip install -r requirements.txt
+```
+
+### 2. Bootstrap de CDK
+
+Si es la primera vez que usas CDK en la cuenta/región:
+
+```bash
+cdk bootstrap aws://CUENTA/REGION
+```
+
+### 3. Configuración de Variables de Entorno
+
+Crear un archivo `.env` en la carpeta `infra` con las siguientes variables:
+
+```plaintext
+ENVIRONMENT=dev
+REGION=eu-west-1
+ACCOUNT_ID=tu-id-de-cuenta
+```
+
+### 4. Despliegue de la Infraestructura
+
+```bash
+# Revisar los cambios que se aplicarán
+cd infra
+cdk diff
 
 # Desplegar la infraestructura
-cdk bootstrap
-cdk deploy --profile gestor-orgs
+cdk deploy --app "python app.py" --all
+
+# Para desplegar un stack específico
+cdk deploy --app "python app.py" NombreDelStack
+```
+
+### 5. Verificación del Despliegue
+
+Una vez completado el despliegue, CDK mostrará las URLs y recursos creados. Guarda esta información para:
+
+- URL del API Gateway
+- ID del User Pool de Cognito
+- URL de la aplicación en Amplify
+
+### 6. Configuración Post-Despliegue
+
+Actualizar el archivo `frontend/gestor-orgs-ui/src/environments/environment.ts` con los valores obtenidos del despliegue:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: "URL_DEL_API_GATEWAY",
+  cognito: {
+    userPoolId: "ID_DEL_USER_POOL",
+    clientId: "ID_DEL_APP_CLIENT",
+  },
+};
 ```
 
 ## Scripts Útiles
@@ -184,7 +240,7 @@ La API expone los siguientes endpoints:
 
 ## Autor
 
-[Tu nombre]
+Victor Raul Rucalcaba Barajas
 
 ## Licencia
 

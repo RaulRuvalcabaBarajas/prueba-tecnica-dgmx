@@ -5,8 +5,8 @@ import {
   RouterStateSnapshot,
   Router,
 } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { Observable, of, from } from 'rxjs';
+import { switchMap, tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
         }
 
         // Intentar obtener el usuario actual antes de redirigir
-        return of(this.checkCurrentUser());
+        return from(this.checkCurrentUser());
       }),
       tap((isAuthenticated) => {
         if (!isAuthenticated) {
